@@ -80,7 +80,7 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     hot: true,
-    host: 'debug030055106150.local.alipay.net',
+    host: ipv4,
     open: process.env.NODE_ENV !== 'test',
     openPage: 'test?locale=en_TH&siteName=th&transToken=xxx#/ddbindcard/bankList',
     contentBase: './',
