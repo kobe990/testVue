@@ -1,0 +1,72 @@
+<!-- ignore mobile.js & desktop.js, generate manifest.js and vendor.js -->
+<% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+  <% if (!~['mobile', 'desktop', 'mobileStyles', 'desktopStyles'].indexOf(chunk)) { %>
+    <script type="text/javascript" src="<%=htmlWebpackPlugin.files.chunks[chunk].entry %>" crossorigin></script>
+  <% } %>
+
+<% } %>
+
+<script data-type="mobile" type="text/html">
+  <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+    <% if (!!~['mobileStyles','mobile'].indexOf(chunk)) { %>
+      <script type="text/javascript" src="<%=htmlWebpackPlugin.files.chunks[chunk].entry %>">
+    <% } %>
+  <% } %>
+
+  <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+  <% if (!!~['mobileStyles','mobile'].indexOf(chunk) && htmlWebpackPlugin.files.chunks[chunk].css.length) { %>
+      <link rel="stylesheet" href="<%=htmlWebpackPlugin.files.chunks[chunk].css[0] %>">
+    <% } %>
+  <% } %>
+</script>
+
+<script data-type="desktop" type="text/html">
+  <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+    <% if (!!~['desktopStyles','desktop'].indexOf(chunk)) { %>
+      <script type="text/javascript" src="<%=htmlWebpackPlugin.files.chunks[chunk].entry %>">
+    <% } %>
+  <% } %>
+
+  <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+  <% if (!!~['desktopStyles','desktop'].indexOf(chunk) && htmlWebpackPlugin.files.chunks[chunk].css.length) { %>
+      <link rel="stylesheet" href="<%=htmlWebpackPlugin.files.chunks[chunk].css[0] %>">
+    <% } %>
+  <% } %>
+</script>
+
+<script>
+  var ua = window.navigator.userAgent;
+  var isMobile = (function () {
+     return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|Mobile/i.test(ua));
+  })();
+
+  var scriptSrcArr = '';
+  var cssSrcArr = '';
+  var queryType = isMobile ? 'script[data-type="mobile"]': 'script[data-type="desktop"]'
+
+  assetsStr = document.querySelector(queryType).innerText
+  scriptSrcArr = assetsStr.match(/src="([^"]+)/g) || []
+  cssSrcArr = assetsStr.match(/href="([^"]+)/g) || []
+
+  function dynamicScript (scriptSrc) {
+    if (scriptSrc) {
+      var script = document.createElement('script')
+      script.setAttribute('type', 'text/javascript')
+      script.setAttribute('src', scriptSrc.replace(/^src="/, ''))
+      script.setAttribute('crossorigin', 'anonymous')
+      document.body.appendChild(script)
+    }
+  }
+
+  function dynamicCss (cssSrc) {
+    if (cssSrc) {
+      var link = document.createElement('link')
+      link.setAttribute('rel', 'stylesheet')
+      link.setAttribute('href', cssSrc.replace(/^href="/, ''))
+      document.head.appendChild(link)
+    }
+  }
+
+  scriptSrcArr.map(dynamicScript)
+  cssSrcArr.map(dynamicCss)
+</script>
